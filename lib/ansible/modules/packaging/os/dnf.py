@@ -41,8 +41,9 @@ options:
   state:
     description:
       - Whether to install (C(present), C(latest)), or remove (C(absent)) a package.
+      - Default is C(None), however in effect the default action is C(present) unless the C(autoremove) option is
+        enabled for this module, then C(absent) is inferred.
     choices: ['absent', 'present', 'installed', 'removed', 'latest']
-    default: "present"
 
   enablerepo:
     description:
@@ -142,7 +143,6 @@ options:
       - If set to C(all), disables all excludes.
       - If set to C(main), disable excludes defined in [main] in yum.conf.
       - If set to C(repoid), disable excludes defined for given repo id.
-    choices: [ all, main, repoid ]
     version_added: "2.7"
   validate_certs:
     description:
@@ -490,6 +490,7 @@ class DnfModule(YumDnf):
 
         # Set whether to check gpg signatures
         conf.gpgcheck = not disable_gpg_check
+        conf.localpkg_gpgcheck = not disable_gpg_check
 
         # Don't prompt for user confirmations
         conf.assumeyes = True
@@ -1039,11 +1040,6 @@ class DnfModule(YumDnf):
             if LooseVersion(dnf.__version__) < LooseVersion('2.0.1'):
                 self.module.fail_json(
                     msg="Autoremove requires dnf>=2.0.1. Current dnf version is %s" % dnf.__version__,
-                    results=[],
-                )
-            if self.state not in ["absent", None]:
-                self.module.fail_json(
-                    msg="Autoremove should be used alone or with state=absent",
                     results=[],
                 )
 

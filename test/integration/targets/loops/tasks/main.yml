@@ -263,7 +263,7 @@
 - name: Loop unsafe list
   debug:
     var: item
-  with_items: "{{ things|map('string')|unique }}"
+  with_items: "{{ things|list|unique }}"
   vars:
     things:
       - !unsafe foo
